@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<h1>Solicitar</h1>
+	<input type="button" value="Registrar Token Falso" onclick="registrar_token_fake()">
+	<input type="button" value="ver token en localstorage" onclick="verificar_token()">
+	<input type="button" value="Realizar peticion ajax" onclick="peticion_ajax()">
+	<input type="button" value="Validar token" onclick="validar_token()">
+</body>
+</html>
+<script src="node_modules/jquery/dist/jquery.min.js"></script>
+<script>
+	function registrar_token_fake()
+	{
+		localStorage.setItem('token','eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1Nzg2MTIwNDYsImF1ZCI6IjM5MGE1NjM3NmRiOTA2OGMzZGNlMWQ4YWMwZTJjMTk1ZWRhYTczY2YiLCJkYXRhIjp7ImlkIjoxLCJuYW1lIjoiRWR1YXJkbyJ9fQ.IJ9TNnkOYWUIzt0whS29oc4qis6jy0ZaleqKGj627FM');
+		alert("Token FALSO registrado")
+	}
+	function verificar_token()
+	{
+		var token = localStorage.getItem('token')
+		alert(token)
+	}
+	function peticion_ajax()
+	{
+		var token = localStorage.getItem('token')
+		$.ajax({
+	        url: `index.php?token=${token}`,
+	        type: "POST",
+	        data: "accion=prueba",
+	        success: function(response)
+	        {
+	        	if(response!=""){
+	        		var datos = Object.values(JSON.parse(response))
+		            alert(datos)
+	        	}
+	            validar_token()
+	        },
+	        error: function(jqXHR,textStatus,errorThrown){
+	            validar_error_ajax(jqXHR,textStatus,errorThrown);
+	        }
+	    });
+	}
+	function validar_token()
+	{
+		var token = localStorage.getItem('token')
+		if(token!=""){
+			$.ajax({
+		        url: `index.php?token=${token}`,
+		        type: "POST",
+		        data: "accion=validar_token",
+		        success: function(response)
+		        {
+		        	if(response==0){
+		        		alert("No ha iniciado sesion o esta solicitando informacion desde una fuente no confiable.")
+		        	}else{
+		        		alert("token correcto")
+		        	}
+		        },
+		        error: function(jqXHR,textStatus,errorThrown){
+		            validar_error_ajax(jqXHR,textStatus,errorThrown);
+		        }
+		    })
+		}else{
+			alert("Por favor inicie sesion.")
+		}
+	}
+</script>
